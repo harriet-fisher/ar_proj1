@@ -1,0 +1,62 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+
+public class EggSpawner : MonoBehaviour
+{
+    public GameObject objectToSpawn;
+    public float rotationDuration = 5f;
+    private ARRaycastManager arRaycastManager;
+    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    private bool hasSpawned = false;
+    private GameObject spawnedObject;
+    private bool isRotating = false;
+
+    void Awake()
+    {
+        arRaycastManager = GetComponent<ARRaycastManager>();
+    }
+
+    void Update()
+    {
+        if (!hasSpawned && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            Vector2 touchPosition = Input.GetTouch(0).position;
+            if (arRaycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
+            {
+                Pose hitPose = hits[0].pose;
+                Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
+                Quaternion objectRotation = Quaternion.Euler(-90f, cameraRotation.eulerAngles.y, -180f);
+                spawnedObject = Instantiate(objectToSpawn, hitPose.position, objectRotation);
+                hasSpawned = true;
+                Transform hingeTransform = spawnedObject.transform.Find("hinge");
+                if (hingeTransform != null)
+                {
+                    StartCoroutine(RotateHinge(hingeTransform));
+                }
+                else
+                {
+                    Debug.LogError("Hinge object not found!");
+                }
+            }
+        }
+    }
+
+IEnumerator RotateHinge(Transform hinge)
+    {
+        Quaternion startRotation = hinge.localRotation;
+        Quaternion endRotation = Quaternion.Euler(-35f, -90f, -90f);
+        float timeElapsed = 0;
+
+        while (timeElapsed < rotationDuration)
+        {
+            hinge.localRotation = Quaternion.Slerp(startRotation, endRotation, timeElapsed / rotationDuration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        hinge.localRotation = endRotation;
+    }
+}
