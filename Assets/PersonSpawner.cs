@@ -13,8 +13,7 @@ public class PersonSpawner : MonoBehaviour
         Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
         Quaternion objectRotation = Quaternion.Euler(0f, -180f, 0f);
         Vector3 newPosition = position;
-        newPosition.y -= 20f;
-        GameObject spawned = Instantiate(personPrefab, newPosition, objectRotation);
+        GameObject spawned = Instantiate(personPrefab, position, objectRotation);
         spawned.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
     }
 }

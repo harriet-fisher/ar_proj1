@@ -32,7 +32,12 @@ public class EggSpawner : MonoBehaviour
                 Pose hitPose = hits[0].pose;
                 Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
                 Quaternion objectRotation = Quaternion.Euler(-90f, cameraRotation.eulerAngles.y, -180f);
-                spawnedObject = Instantiate(objectToSpawn, hitPose.position, objectRotation);
+
+                MeshRenderer meshR = objectToSpawn.GetComponent<MeshRenderer>();
+                float objectHeight = meshR != null ? meshR.bounds.size.y : 0f;
+                Vector3 spawnPosition = new Vector3(hitPose.position.x, hitPose.position.y + objectHeight/2, hitPose.position.z);
+
+                spawnedObject = Instantiate(objectToSpawn, spawnPosition, objectRotation);
                 hasSpawned = true;
                 additionalSpawner.SpawnAdditionalPrefab(hitPose.position, objectRotation);
                 Transform hingeTransform = spawnedObject.transform.Find("hinge");
