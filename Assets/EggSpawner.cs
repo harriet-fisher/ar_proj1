@@ -13,6 +13,9 @@ public class EggSpawner : MonoBehaviour
     private bool hasSpawned = false;
     private GameObject spawnedObject;
     private bool isRotating = false;
+    public bool isActive = false;
+
+    public PersonSpawner additionalSpawner;
 
     void Awake()
     {
@@ -21,7 +24,7 @@ public class EggSpawner : MonoBehaviour
 
     void Update()
     {
-        if (!hasSpawned && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (isActive && !hasSpawned && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Vector2 touchPosition = Input.GetTouch(0).position;
             if (arRaycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
@@ -31,6 +34,7 @@ public class EggSpawner : MonoBehaviour
                 Quaternion objectRotation = Quaternion.Euler(-90f, cameraRotation.eulerAngles.y, -180f);
                 spawnedObject = Instantiate(objectToSpawn, hitPose.position, objectRotation);
                 hasSpawned = true;
+                additionalSpawner.SpawnAdditionalPrefab(hitPose.position, objectRotation);
                 Transform hingeTransform = spawnedObject.transform.Find("hinge");
                 if (hingeTransform != null)
                 {
@@ -49,7 +53,8 @@ IEnumerator RotateHinge(Transform hinge)
         Quaternion startRotation = hinge.localRotation;
         Quaternion endRotation = Quaternion.Euler(-35f, -90f, -90f);
         float timeElapsed = 0;
-
+        Debug.Log("Starting rotation");
+        
         while (timeElapsed < rotationDuration)
         {
             hinge.localRotation = Quaternion.Slerp(startRotation, endRotation, timeElapsed / rotationDuration);
@@ -59,4 +64,10 @@ IEnumerator RotateHinge(Transform hinge)
 
         hinge.localRotation = endRotation;
     }
+
+public void ActivateSpawning()
+{
+    isActive = true;
+}
+
 }
