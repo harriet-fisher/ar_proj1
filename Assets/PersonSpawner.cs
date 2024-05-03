@@ -11,8 +11,10 @@ public class PersonSpawner : MonoBehaviour
     public void SpawnAdditionalPrefab(Vector3 position, Quaternion rotation)
     {
         Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
-        Quaternion objectRotation = Quaternion.Euler(0f, cameraRotation.eulerAngles.y, 0);
+        Quaternion objectRotation = Quaternion.Euler(0f, -180f, 0f);
+        Vector3 newPosition = position;
+        newPosition.y -= 20f;
         GameObject spawned = Instantiate(personPrefab, position, objectRotation);
-        spawned.transform.localScale = new Vector3(0.065f, 0.065f, 0.065f);
+        spawned.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
     }
 }
