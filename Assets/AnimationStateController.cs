@@ -11,6 +11,7 @@ public class AnimationStateController : MonoBehaviour
     public GameObject AngryButton;
     public GameObject SadButton;
     public GameObject HappyButton;
+    public float AnnoyDelay;
 
     Animator animator;
     // Start is called before the first frame update
@@ -60,6 +61,9 @@ public class AnimationStateController : MonoBehaviour
         }  
         if (!Happy){
             animator.SetBool("isHappy",false);
+        }
+        if (Time.time>AnnoyDelay){
+            animator.SetBool("charAnnoyed",true);
         }
     }
 }
