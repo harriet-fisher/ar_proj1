@@ -25,6 +25,7 @@ public class AnimationStateController : MonoBehaviour
         Angry = false;
         Sad = false;
         Happy = false;
+        Debug.Log("Setting state from button");
 
         if(state == 0){
             Happy = true;
