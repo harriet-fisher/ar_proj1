@@ -11,28 +11,43 @@ public class AnimationStateController : MonoBehaviour
     public GameObject AngryButton;
     public GameObject SadButton;
     public GameObject HappyButton;
+    
     public float AnnoyDelay;
 
-    Animator animator;
+    public Animator animator;
     // Start is called before the first frame update
     void Start()
     {
-        animator = GetComponent<Animator>();
+
+    }
+
+    public void isAngry(){
+        Debug.Log("Setting trigger to isAngry");
+        animator.SetTrigger("isAngry");
+    }
+
+    public void isHappy(){
+        animator.SetTrigger("isHappy");
+    }
+
+    public void isSad(){
+        animator.SetTrigger("isSad");
     }
 
     public void SetState(int state)
     {
-        Angry = false;
-        Sad = false;
-        Happy = false;
+        Debug.Log("Setting trigger to issad or happy");
+        animator.SetBool("isHappy", false);
+        animator.SetBool("isSad", false);
+        animator.SetBool("isAngry", false);
         Debug.Log("Setting state from button");
 
-        if(state == 0){
-            Happy = true;
-        } else if(state == 1){
-            Sad = true;
-        } else if(state == 2){
-            Angry = true;
+        if (state == 0) {
+            animator.SetBool("isHappy", true);
+        } else if (state == 1) {
+            animator.SetBool("isSad", true);
+        } else if (state == 2) {
+            animator.SetBool("isAngry", true);
         }
     }
 
@@ -42,28 +57,12 @@ public class AnimationStateController : MonoBehaviour
         HappyButton.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Angry){
-            animator.SetBool("isAngry",true);
-        }  
-        if (!Angry){
-            animator.SetBool("isAngry",false);
-        }
-         if (Sad){
-            animator.SetBool("isSad",true);
-        }  
-        if (!Sad){
-            animator.SetBool("isSad",false);
-        }
-         if (Happy){
-            animator.SetBool("isHappy",true);
-        }  
-        if (!Happy){
-            animator.SetBool("isHappy",false);
-        }
-        if (Time.time>AnnoyDelay){
+        if (Time.deltaTime > AnnoyDelay){
+            animator.SetBool("isHappy", false);
+            animator.SetBool("isSad", false);
+            animator.SetBool("isAngry", false);
             animator.SetBool("charAnnoyed",true);
         }
     }
