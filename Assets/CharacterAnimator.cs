@@ -19,7 +19,7 @@ public class CharacterAnimator : MonoBehaviour
 
         if (target!=true){ //switch target for variable that indicates if man has been spawned
             character=GameObject.Find("personPrefab");
-            anim = character.gameObject.GetComponent<Animation>();
+            //anim = character.gameObject.GetComponent<Animation>();
 
         }
     }
