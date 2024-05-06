@@ -4,37 +4,61 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
+    bool Angry = false;
+    bool Sad = false;
+    bool Happy = false;
+
+    public GameObject AngryButton;
+    public GameObject SadButton;
+    public GameObject HappyButton;
+
     Animator animator;
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
+    }
 
+    public void SetState(int state)
+    {
+        Angry = false;
+        Sad = false;
+        Happy = false;
 
+        if(state == 0){
+            Happy = true;
+        } else if(state == 1){
+            Sad = true;
+        } else if(state == 2){
+            Angry = true;
+        }
+    }
+
+    void DisableMenu(){
+        AngryButton.SetActive(false);
+        SadButton.SetActive(false);
+        HappyButton.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        bool AngryButton = Input.GetKey("a"); //change for button condition
-        bool SadButton = Input.GetKey("s");
-        bool HappyButton = Input.GetKey("h");
-        if (AngryButton){
+        if (Angry){
             animator.SetBool("isAngry",true);
         }  
-        if (!AngryButton){
+        if (!Angry){
             animator.SetBool("isAngry",false);
         }
-         if (SadButton){
+         if (Sad){
             animator.SetBool("isSad",true);
         }  
-        if (!SadButton){
+        if (!Sad){
             animator.SetBool("isSad",false);
         }
-         if (HappyButton){
+         if (Happy){
             animator.SetBool("isHappy",true);
         }  
-        if (!HappyButton){
+        if (!Happy){
             animator.SetBool("isHappy",false);
         }
     }

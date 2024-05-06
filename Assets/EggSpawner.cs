@@ -16,6 +16,7 @@ public class EggSpawner : MonoBehaviour
     public bool isActive = false;
 
     public PersonSpawner additionalSpawner;
+    public UIManager uiManager;
 
     void Awake()
     {
@@ -44,6 +45,7 @@ public class EggSpawner : MonoBehaviour
                 if (hingeTransform != null)
                 {
                     StartCoroutine(RotateHinge(hingeTransform));
+                    uiManager.ShowMenu();
                 }
                 else
                 {
