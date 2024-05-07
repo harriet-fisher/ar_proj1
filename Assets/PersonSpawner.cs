@@ -31,7 +31,7 @@ public class PersonSpawner : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(1);
-            angerLevel += 2;
+            angerLevel += 10;
             CheckAngerLevel();
         }
     }
@@ -72,7 +72,7 @@ public class PersonSpawner : MonoBehaviour
    {
     Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
     Quaternion objectRotation = Quaternion.Euler(0f, -180f, 0f);
-    Vector3 newPosition = position + new Vector3(0f, 0.001f, 0f);
+    Vector3 newPosition = position + new Vector3(0f, 0.015f, 0f);
     currentCharacter = Instantiate(personPrefab, newPosition, objectRotation);
     currentCharacter.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
     characterAnimator = currentCharacter.GetComponent<Animator>();
@@ -153,15 +153,12 @@ public class PersonSpawner : MonoBehaviour
     IEnumerator PerformActionSequence()
     {
     characterAnimator.SetTrigger("TheEnd");
-    yield return new WaitForSeconds(characterAnimator.GetCurrentAnimatorStateInfo(0).length);
-
+    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
     characterAnimator.SetTrigger("triggerAction2");
-    yield return new WaitForSeconds(characterAnimator.GetCurrentAnimatorStateInfo(0).length);
-
+    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
     characterAnimator.SetTrigger("triggerAction3");
-    yield return new WaitForSeconds(characterAnimator.GetCurrentAnimatorStateInfo(0).length);
-
-    ResetStates();
+    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
+    characterAnimator.SetTrigger("triggerAction4");
     }
 
     public void ResetStates()
