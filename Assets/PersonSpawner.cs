@@ -30,8 +30,8 @@ public class PersonSpawner : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(1);
-            angerLevel += 10;
+            yield return new WaitForSeconds(2);
+            angerLevel += 1;
             CheckAngerLevel();
         }
     }
@@ -129,7 +129,7 @@ public class PersonSpawner : MonoBehaviour
             characterRenderer.material = angryMaterial;
         }
 
-        angerLevel += 5;
+        angerLevel += 2;
         CheckAngerLevel();
     }
 
