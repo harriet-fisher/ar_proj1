@@ -81,6 +81,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 5984477290178084908}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 776d8de8b21d9408282b822cdc44a3ca,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7491641178300860243}
   m_SourcePrefab: {fileID: 100100000, guid: 776d8de8b21d9408282b822cdc44a3ca, type: 3}
 --- !u!1 &5415752094614515187 stripped
 GameObject:
@@ -97,7 +101,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5415752094614515187}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: 776d8de8b21d9408282b822cdc44a3ca, type: 3}
   m_Controller: {fileID: 9100000, guid: 39a21ae34180547368e26fbee02fa82c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
@@ -109,3 +113,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-7491641178300860243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5415752094614515187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca9917db5a608428a883d84b9e7060f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portalPrefab: {fileID: 5700612398203735124, guid: 81a841cb0301849e397091bd8d18b3ac,
+    type: 3}
+  offsetY: 0.1
+  spawnedPortal: {fileID: 0}
+  portalScale: {x: 0.01, y: 0.01, z: 0.01}
+  disappearSpeed: 1
+  collapseSpeed: 0.1

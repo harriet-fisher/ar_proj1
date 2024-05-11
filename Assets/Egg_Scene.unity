@@ -1663,6 +1663,7 @@ MonoBehaviour:
   personPrefab: {fileID: 5415752094614515187, guid: 2101485fc434d4ed495cbd4305a26993,
     type: 3}
   characterRenderer: {fileID: 0}
+  portalPrefab: {fileID: 0}
   uiButtons:
   - {fileID: 1566847432}
   - {fileID: 2065391625}

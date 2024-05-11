@@ -45,6 +45,7 @@ public class EggSpawner : MonoBehaviour
                 if (hingeTransform != null)
                 {
                     StartCoroutine(RotateHinge(hingeTransform));
+                    additionalSpawner.walkOut();
                     uiManager.ShowMenu();
                 }
                 else

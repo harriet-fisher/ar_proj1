@@ -11,6 +11,7 @@ public class PersonSpawner : MonoBehaviour
    private Animator characterAnimator;
    public Renderer characterRenderer;
    private GameObject currentCharacter;
+   public GameObject portalPrefab;
 
    public List<Button> uiButtons;
    private bool areButtonsVisible = true;
@@ -31,7 +32,7 @@ public class PersonSpawner : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(2);
-            angerLevel += 1;
+            angerLevel += 10;
             CheckAngerLevel();
         }
     }
@@ -76,6 +77,8 @@ public class PersonSpawner : MonoBehaviour
     currentCharacter = Instantiate(personPrefab, newPosition, objectRotation);
     currentCharacter.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
     characterAnimator = currentCharacter.GetComponent<Animator>();
+    SpawnPortal spawnPortal = currentCharacter.GetComponent<SpawnPortal>();
+
     Transform bodyTransform = currentCharacter.transform.Find("body");
         if (bodyTransform != null)
         {
@@ -86,6 +89,10 @@ public class PersonSpawner : MonoBehaviour
         {
             characterRenderer.material = idleMaterial;
         }
+   }
+
+   public void walkOut(){
+    characterAnimator.SetTrigger("walk_out_of_egg");
    }
 
     public void OnHappyClick()
@@ -146,19 +153,13 @@ public class PersonSpawner : MonoBehaviour
             {
                 characterRenderer.material = angryMaterial;
             }
-            StartCoroutine(PerformActionSequence());
+            PerformActionSequence();
         }
     }
 
-    IEnumerator PerformActionSequence()
+    public void PerformActionSequence()
     {
     characterAnimator.SetTrigger("TheEnd");
-    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
-    characterAnimator.SetTrigger("triggerAction2");
-    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
-    characterAnimator.SetTrigger("triggerAction3");
-    yield return new WaitUntil(() => characterAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f);
-    characterAnimator.SetTrigger("triggerAction4");
     }
 
     public void ResetStates()
