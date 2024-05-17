@@ -19,13 +19,14 @@ public class PersonSpawner : MonoBehaviour
    public Material angryMaterial;
    public Material idleMaterial;
    public UIManager uiManager;
-
    public EggSpawner eggSpawner;
-
    private bool isOut = false;
 
    private int angerLevel = 0;
+   public GameObject eggInstance;
+   private Vector3 eggPosition;
    
+   public SoundEffectManager soundEffectManager;
    void Start(){
     StartCoroutine(IncrementAngerOverTime());
     if (eggSpawner != null){
@@ -62,18 +63,21 @@ public class PersonSpawner : MonoBehaviour
             }
             if (stateInfo.IsName("sad_turn_final")){
                 StartCoroutine(eggSpawner.UnRotateHinge());
-                StartCoroutine(returnIdle());
+                StartCoroutine(sleep());
             }
         }
     }
    
-   public void SpawnAdditionalPrefab(Vector3 position, Quaternion rotation)
+   public void SpawnAdditionalPrefab(Vector3 position, Quaternion rotation, GameObject egg)
    {
-    Quaternion cameraRotation = Quaternion.LookRotation(Camera.main.transform.forward, Vector3.up);
-    Quaternion objectRotation = Quaternion.Euler(0f, -180f, 0f);
-    Vector3 newPosition = position + new Vector3(0f, 0.015f, 0f);
-    currentCharacter = Instantiate(personPrefab, newPosition, objectRotation);
-    currentCharacter.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+    eggInstance = egg;
+    eggPosition = position;
+    Vector3 newPosition = position + new Vector3(0.0005f, 0.015f, 0f);
+    Vector3 cameraDirection = Camera.main.transform.position - newPosition;
+    cameraDirection.y = 0;
+    Quaternion cameraRotation = Quaternion.LookRotation(cameraDirection, Vector3.up);
+    currentCharacter = Instantiate(personPrefab, newPosition, cameraRotation);
+    currentCharacter.transform.localScale = new Vector3(0.045f, 0.045f, 0.045f);
     characterAnimator = currentCharacter.GetComponent<Animator>();
     SpawnPortal spawnPortal = currentCharacter.GetComponent<SpawnPortal>();
 
@@ -100,11 +104,11 @@ public class PersonSpawner : MonoBehaviour
         {
             characterAnimator.SetTrigger("isHappy 0");
         }
+        StartCoroutine(soundEffectManager.PlayWorkSound());
         if (characterRenderer != null && happyMaterial != null)
         {
             characterRenderer.material = happyMaterial;
         }
-        Debug.Log("Happy animation triggered");
     }
 
     public void OnSadClick()
@@ -113,25 +117,31 @@ public class PersonSpawner : MonoBehaviour
         {
             characterAnimator.SetTrigger("isSad 0");
         }
+        StartCoroutine(soundEffectManager.PlaySadSound());
         if (characterRenderer != null && sadMaterial != null)
         {
             characterRenderer.material = sadMaterial;
         }
     }
 
-    IEnumerator returnIdle(){
-        yield return new WaitForSeconds(2.0f);
+    IEnumerator sleep(){
         if (characterAnimator != null)
         {
             characterAnimator.SetTrigger("sleep");
         }
-        yield return new WaitForSeconds(2.0f);
-        Vector3 directionToCamera = Camera.main.transform.position - currentCharacter.transform.position;
-        directionToCamera.y = 0;
-        Quaternion lookRotation = Quaternion.LookRotation(directionToCamera);
-        currentCharacter.transform.rotation = lookRotation;
-        yield return new WaitForSeconds(8.0f);
+        StartCoroutine(soundEffectManager.PlaySleepSound());
+        yield return new WaitForSeconds(12.0f);
+        resetPosition();
         StartCoroutine(eggSpawner.RotateHinge());
+    }
+
+    void resetPosition(){
+        Vector3 newPosition = eggPosition + new Vector3(0.0005f, 0.015f, 0f);
+        Vector3 cameraDirection = Camera.main.transform.position - newPosition;
+        cameraDirection.y = 0;
+        Quaternion cameraRotation = Quaternion.LookRotation(cameraDirection, Vector3.up);
+        currentCharacter.transform.position = newPosition;
+        currentCharacter.transform.rotation = cameraRotation;
     }
 
     public void OnAngryClick()
@@ -140,11 +150,11 @@ public class PersonSpawner : MonoBehaviour
         {
             characterAnimator.SetTrigger("isAngry 0");
         }
+        StartCoroutine(soundEffectManager.PlayAngrySound());
         if (characterRenderer != null && angryMaterial != null)
         {
             characterRenderer.material = angryMaterial;
         }
-
         angerLevel += 1;
         CheckAngerLevel();
         Debug.Log("Angry animation triggered, anger level: " + angerLevel);

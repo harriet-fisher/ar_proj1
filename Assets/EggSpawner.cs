@@ -14,11 +14,10 @@ public class EggSpawner : MonoBehaviour
     public GameObject spawnedObject;
     private bool isRotating = false;
     public bool isActive = false;
-
     public Transform hinge;
     public PersonSpawner additionalSpawner;
     public UIManager uiManager;
-
+    public SoundEffectManager soundEffectManager;
     void Awake()
     {
         arRaycastManager = GetComponent<ARRaycastManager>();
@@ -41,7 +40,7 @@ public class EggSpawner : MonoBehaviour
 
                 spawnedObject = Instantiate(objectToSpawn, spawnPosition, objectRotation);
                 hasSpawned = true;
-                additionalSpawner.SpawnAdditionalPrefab(hitPose.position, objectRotation);
+                additionalSpawner.SpawnAdditionalPrefab(hitPose.position, objectRotation, spawnedObject);
                 hinge = spawnedObject.transform.Find("hinge");
                 StartCoroutine(RotateHinge());
             }
@@ -54,7 +53,8 @@ public IEnumerator RotateHinge()
         Quaternion endRotation = Quaternion.Euler(-35f, -90f, -90f);
         float timeElapsed = 0;
         Debug.Log("Starting rotation");
-
+        soundEffectManager.SetEffectPitch(0.7f);
+        StartCoroutine(soundEffectManager.PlayDoorSound());
         while (timeElapsed < rotationDuration)
         {
             hinge.localRotation = Quaternion.Slerp(startRotation, endRotation, timeElapsed / rotationDuration);
@@ -67,12 +67,11 @@ public IEnumerator RotateHinge()
 
 public IEnumerator UnRotateHinge()
     {
-        Debug.Log("GETTING TO UNROTATION");
         Quaternion startRotation = hinge.localRotation;
         Quaternion endRotation = Quaternion.Euler(90f, -90f, -90f);
         float timeElapsed = 0;
-        Debug.Log("Starting Unrotation");
-        
+        soundEffectManager.SetEffectPitch(0.7f);
+        StartCoroutine(soundEffectManager.PlayDoorSound());
         while (timeElapsed < rotationDuration)
         {
             hinge.localRotation = Quaternion.Slerp(startRotation, endRotation, timeElapsed / rotationDuration);
