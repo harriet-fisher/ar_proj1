@@ -12,27 +12,33 @@ public class PersonSpawner : MonoBehaviour
    public Renderer characterRenderer;
    private GameObject currentCharacter;
    public GameObject portalPrefab;
-
-   public List<Button> uiButtons;
-   private bool areButtonsVisible = true;
+   private bool areButtonsVisible = false;
 
    public Material happyMaterial;
    public Material sadMaterial;
    public Material angryMaterial;
    public Material idleMaterial;
+   public UIManager uiManager;
+
+   public EggSpawner eggSpawner;
+
+   private bool isOut = false;
 
    private int angerLevel = 0;
    
    void Start(){
     StartCoroutine(IncrementAngerOverTime());
+    if (eggSpawner != null){
+        Debug.Log("There is an egg spawner");
+    }
    }
 
    IEnumerator IncrementAngerOverTime()
     {
         while (true)
         {
-            yield return new WaitForSeconds(2);
-            angerLevel += 10;
+            yield return new WaitForSeconds(5);
+            angerLevel += 1;
             CheckAngerLevel();
         }
     }
@@ -44,7 +50,7 @@ public class PersonSpawner : MonoBehaviour
             AnimatorStateInfo stateInfo = characterAnimator.GetCurrentAnimatorStateInfo(0);
             bool isIdle = stateInfo.IsName("Idle");
 
-            if (isIdle && !areButtonsVisible)
+            if (isIdle && !areButtonsVisible && isOut)
             {
                 ToggleUIButtons(true);
                 areButtonsVisible = true;
@@ -54,17 +60,9 @@ public class PersonSpawner : MonoBehaviour
                 ToggleUIButtons(false);
                 areButtonsVisible = false;
             }
-            if (stateInfo.IsName("Happy") && stateInfo.normalizedTime >= 1.0f)
-            {
-                ResetStates();
-            }
-            else if (stateInfo.IsName("Sad") && stateInfo.normalizedTime >= 1.0f)
-            {
-                ResetStates();
-            }
-            else if (stateInfo.IsName("Angry") && stateInfo.normalizedTime >= 1.0f)
-            {
-                ResetStates();
+            if (stateInfo.IsName("sad_turn_final")){
+                StartCoroutine(eggSpawner.UnRotateHinge());
+                StartCoroutine(returnIdle());
             }
         }
     }
@@ -93,29 +91,27 @@ public class PersonSpawner : MonoBehaviour
 
    public void walkOut(){
     characterAnimator.SetTrigger("walk_out_of_egg");
+    isOut = true;
    }
 
     public void OnHappyClick()
     {
         if (characterAnimator != null)
         {
-            characterAnimator.SetBool("isHappy", true);
-            characterAnimator.SetBool("isSad", false);
-            characterAnimator.SetBool("isAngry", false);
+            characterAnimator.SetTrigger("isHappy 0");
         }
         if (characterRenderer != null && happyMaterial != null)
         {
             characterRenderer.material = happyMaterial;
         }
+        Debug.Log("Happy animation triggered");
     }
 
     public void OnSadClick()
     {
         if (characterAnimator != null)
         {
-            characterAnimator.SetBool("isHappy", false);
-            characterAnimator.SetBool("isSad", true);
-            characterAnimator.SetBool("isAngry", false);
+            characterAnimator.SetTrigger("isSad 0");
         }
         if (characterRenderer != null && sadMaterial != null)
         {
@@ -123,21 +119,35 @@ public class PersonSpawner : MonoBehaviour
         }
     }
 
+    IEnumerator returnIdle(){
+        yield return new WaitForSeconds(2.0f);
+        if (characterAnimator != null)
+        {
+            characterAnimator.SetTrigger("sleep");
+        }
+        yield return new WaitForSeconds(2.0f);
+        Vector3 directionToCamera = Camera.main.transform.position - currentCharacter.transform.position;
+        directionToCamera.y = 0;
+        Quaternion lookRotation = Quaternion.LookRotation(directionToCamera);
+        currentCharacter.transform.rotation = lookRotation;
+        yield return new WaitForSeconds(8.0f);
+        StartCoroutine(eggSpawner.RotateHinge());
+    }
+
     public void OnAngryClick()
     {
         if (characterAnimator != null)
         {
-            characterAnimator.SetBool("isHappy", false);
-            characterAnimator.SetBool("isSad", false);
-            characterAnimator.SetBool("isAngry", true);
+            characterAnimator.SetTrigger("isAngry 0");
         }
         if (characterRenderer != null && angryMaterial != null)
         {
             characterRenderer.material = angryMaterial;
         }
 
-        angerLevel += 2;
+        angerLevel += 1;
         CheckAngerLevel();
+        Debug.Log("Angry animation triggered, anger level: " + angerLevel);
     }
 
     void CheckAngerLevel()
@@ -147,7 +157,6 @@ public class PersonSpawner : MonoBehaviour
             characterAnimator.SetBool("isHappy", false);
             characterAnimator.SetBool("isSad", false);
             characterAnimator.SetBool("isAngry", false);
-            characterAnimator.SetBool("returnToIdle", false);
             ToggleUIButtons(false);
             if (characterRenderer != null && angryMaterial != null)
             {
@@ -162,19 +171,8 @@ public class PersonSpawner : MonoBehaviour
     characterAnimator.SetTrigger("TheEnd");
     }
 
-    public void ResetStates()
-    {
-        characterAnimator.SetBool("isHappy", false);
-        characterAnimator.SetBool("isSad", false);
-        characterAnimator.SetBool("isAngry", false);
-        characterAnimator.SetBool("returnToIdle", true);
-    }
-
     void ToggleUIButtons(bool visible)
     {
-        foreach (Button button in uiButtons)
-        {
-            button.gameObject.SetActive(visible);
-        }
+        uiManager.ShowMenu(visible);
     }
 }

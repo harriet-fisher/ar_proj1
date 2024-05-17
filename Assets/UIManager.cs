@@ -12,9 +12,9 @@ public class UIManager : MonoBehaviour
         uiPanel.SetActive(false);
     }
 
-    public void ShowMenu()
+    public void ShowMenu(bool visible)
     {
-        actionMenu.SetActive(true);
+        actionMenu.SetActive(visible);
     }
 
     void Start()

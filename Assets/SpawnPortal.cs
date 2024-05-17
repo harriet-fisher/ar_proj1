@@ -10,15 +10,15 @@ public class SpawnPortal : MonoBehaviour
     public GameObject portalPrefab;
     private Animator animator;
     private bool hasSpawnedPortal = false;
-    public float offsetY = 0.1f;
+    public float offsetY = 0.5f;
     private ARPlaneManager arPlaneManager;
     private float arSurfaceY;
     public GameObject spawnedPortal;
     private Renderer[] characterRenderers;
 
-    public Vector3 portalScale = new Vector3(2f, 2f, 2f);
-    public float disappearSpeed = 0.1f;
-    public float collapseSpeed = 1.0f;
+    //public Vector3 portalScale = new Vector3(5f, 5f, 5f);
+    public float disappearSpeed = 1.0f;
+    public float collapseSpeed = 8.0f;
 
     void Start()
     {
@@ -55,33 +55,65 @@ public class SpawnPortal : MonoBehaviour
                     break;
                 }
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
         }
+    }
+    IEnumerator DelayedOnJump()
+    {
+        yield return new WaitForSeconds(0.1f);
+        OnJump();
     }
     void OnJump()
     {
         if (!hasSpawnedPortal && portalPrefab != null)
         {
-            Vector3 spawnPosition = new Vector3(transform.position.x, arSurfaceY - offsetY, transform.position.z);
+            Vector3 spawnPosition = new Vector3(transform.position.x-0.03f, arSurfaceY - offsetY, transform.position.z - 0.03f);
             spawnedPortal = Instantiate(portalPrefab, spawnPosition, Quaternion.identity);
-            spawnedPortal.transform.localScale = portalScale;
+            spawnedPortal.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
             hasSpawnedPortal = true;
-            StartCoroutine(MoveDownAndDisappear());
+            StartCoroutine(PopUpPortal());
         }
+    }
+
+    IEnumerator PopUpPortal()
+    {
+        while (spawnedPortal.transform.localScale.x < 0.06f)
+        {
+            float newScale = spawnedPortal.transform.localScale.x + (collapseSpeed * Time.deltaTime);
+            spawnedPortal.transform.localScale = new Vector3(newScale, newScale, newScale);
+            yield return null;
+        }
+        yield return new WaitForSeconds(0.1f);
+        StartCoroutine(MoveDownAndDisappear());
     }
     IEnumerator MoveDownAndDisappear()
     {
-        yield return new WaitForSeconds(0.5f);
         float initialY = transform.position.y;
         while (transform.position.y > arSurfaceY - offsetY)
         {
+            Debug.Log("CHARACTER POSITION: " + transform.position);
+            Debug.Log("PORTAL POSITION: " + spawnedPortal.transform.position);
             transform.position += Vector3.down * disappearSpeed * Time.deltaTime;
             float alpha = Mathf.Clamp01((transform.position.y - (arSurfaceY - offsetY)) / (initialY - (arSurfaceY - offsetY)));
             SetCharacterAlpha(alpha);
             yield return null;
         }
         SetCharacterAlpha(0.0f);
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+        DisableVisibility();
+        StartCoroutine(CollapsePortal());
+    }
+
+    IEnumerator CollapsePortal()
+    {
+        float initialScale = spawnedPortal.transform.localScale.x;
+        while (spawnedPortal.transform.localScale.x > 0.01f)
+        {
+            float newScale = spawnedPortal.transform.localScale.x - (collapseSpeed * Time.deltaTime);
+            spawnedPortal.transform.localScale = new Vector3(newScale, newScale, newScale);
+            yield return null;
+        }
+        spawnedPortal.SetActive(false);
     }
 
 
@@ -95,6 +127,14 @@ public class SpawnPortal : MonoBehaviour
                 color.a = alpha;
                 mat.color = color;
             }
+        }
+    }
+
+    void DisableVisibility()
+    {
+        foreach (Renderer renderer in characterRenderers)
+        {
+            renderer.enabled = false;
         }
     }
 }
