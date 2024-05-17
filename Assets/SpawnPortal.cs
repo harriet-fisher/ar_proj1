@@ -15,16 +15,16 @@ public class SpawnPortal : MonoBehaviour
     private float arSurfaceY;
     public GameObject spawnedPortal;
     private Renderer[] characterRenderers;
-
-    //public Vector3 portalScale = new Vector3(5f, 5f, 5f);
     public float disappearSpeed = 1.0f;
     public float collapseSpeed = 8.0f;
+    public UIManager uiManager;
+    public GameObject character;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         characterRenderers = GetComponentsInChildren<Renderer>();
-        arPlaneManager = arPlaneManager = FindObjectOfType<ARPlaneManager>();
+        arPlaneManager = FindObjectOfType<ARPlaneManager>();
         StartCoroutine(UpdateARSurfaceY());
     }
 
@@ -114,6 +114,7 @@ public class SpawnPortal : MonoBehaviour
             yield return null;
         }
         spawnedPortal.SetActive(false);
+        uiManager.ShowEnd();
     }
 
 

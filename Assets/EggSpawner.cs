@@ -70,8 +70,6 @@ public IEnumerator UnRotateHinge()
         Quaternion startRotation = hinge.localRotation;
         Quaternion endRotation = Quaternion.Euler(90f, -90f, -90f);
         float timeElapsed = 0;
-        soundEffectManager.SetEffectPitch(0.7f);
-        StartCoroutine(soundEffectManager.PlayDoorSound());
         while (timeElapsed < rotationDuration)
         {
             hinge.localRotation = Quaternion.Slerp(startRotation, endRotation, timeElapsed / rotationDuration);

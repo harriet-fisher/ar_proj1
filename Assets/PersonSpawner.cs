@@ -65,6 +65,10 @@ public class PersonSpawner : MonoBehaviour
                 StartCoroutine(eggSpawner.UnRotateHinge());
                 StartCoroutine(sleep());
             }
+            if (stateInfo.IsName("jump_down"))
+            {
+                StartCoroutine(soundEffectManager.PlayPortalSound());
+            }
         }
     }
    
@@ -123,8 +127,16 @@ public class PersonSpawner : MonoBehaviour
             characterRenderer.material = sadMaterial;
         }
     }
+    public void sleepTrigger(){
+        Debug.Log("Entering sleepTrigger");
+        StartCoroutine(eggSpawner.UnRotateHinge());
+        sleep();
+    }
 
     IEnumerator sleep(){
+        Debug.Log("Entering sleep coroutine");
+        soundEffectManager.SetEffectPitch(0.7f);
+        StartCoroutine(soundEffectManager.PlayDoorSound());
         if (characterAnimator != null)
         {
             characterAnimator.SetTrigger("sleep");
@@ -133,15 +145,18 @@ public class PersonSpawner : MonoBehaviour
         yield return new WaitForSeconds(12.0f);
         resetPosition();
         StartCoroutine(eggSpawner.RotateHinge());
+        Debug.Log("Finished waiting in sleep coroutine");
     }
-
     void resetPosition(){
         Vector3 newPosition = eggPosition + new Vector3(0.0005f, 0.015f, 0f);
+        Debug.Log("New Position: " + newPosition);
         Vector3 cameraDirection = Camera.main.transform.position - newPosition;
         cameraDirection.y = 0;
         Quaternion cameraRotation = Quaternion.LookRotation(cameraDirection, Vector3.up);
+        Debug.Log("New Rotation: " + cameraRotation);
         currentCharacter.transform.position = newPosition;
         currentCharacter.transform.rotation = cameraRotation;
+        Debug.Log("Got past reset position in sleep coroutine");
     }
 
     public void OnAngryClick()

@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
 {
     public GameObject uiPanel;
     public GameObject actionMenu;
+    public GameObject theEnd;
 
     public void ContinueButton()
     {
@@ -21,5 +22,9 @@ public class UIManager : MonoBehaviour
     {
         uiPanel.SetActive(true);
         actionMenu.SetActive(false);
+    }
+
+    public void ShowEnd(){
+        theEnd.SetActive(true);
     }
 }

@@ -12,6 +12,7 @@ public class SoundEffectManager : MonoBehaviour
     public AudioClip doorClip;
     public AudioSource breathingSource;
     public AudioClip breathingClip;
+    public AudioClip portalClip;
 
     void Start()
     {
@@ -42,6 +43,10 @@ public class SoundEffectManager : MonoBehaviour
         yield return PlaySound(doorClip);
     }
 
+    public IEnumerator PlayPortalSound(){
+        yield return PlaySound(portalClip);
+    }
+
     private IEnumerator PlaySound(AudioClip clip)
     {
         if (audioSource != null && clip != null)
@@ -63,6 +68,16 @@ public class SoundEffectManager : MonoBehaviour
             breathingSource.clip = breathingClip;
             breathingSource.loop = true;
             breathingSource.Play();
+        }
+    }
+
+    public void StopBackgroundSound()
+    {
+        if (breathingSource != null && breathingClip != null)
+        {
+            breathingSource.clip = breathingClip;
+            breathingSource.loop = false;
+            breathingSource.Pause();
         }
     }
     public void SetEffectPitch(float pitch)
