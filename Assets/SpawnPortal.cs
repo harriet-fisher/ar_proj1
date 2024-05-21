@@ -16,14 +16,14 @@ public class SpawnPortal : MonoBehaviour
     public GameObject spawnedPortal;
     private Renderer[] characterRenderers;
     public float disappearSpeed = 1.0f;
-    public float collapseSpeed = 8.0f;
+    public float collapseSpeed = 0.02f;
     public UIManager uiManager;
     public GameObject character;
+    public SoundEffectManager soundEffectManager;
+    private bool hasJumped = false;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        characterRenderers = GetComponentsInChildren<Renderer>();
         arPlaneManager = FindObjectOfType<ARPlaneManager>();
         StartCoroutine(UpdateARSurfaceY());
     }
@@ -31,15 +31,14 @@ public class SpawnPortal : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        if (stateInfo.IsName("jump_down"))
-        {
-            OnJump();
-        }
-        else
-        {
-            hasSpawnedPortal = false;
+        if (character != null){
+            animator = character.GetComponent<Animator>();
+            characterRenderers = character.GetComponentsInChildren<Renderer>();
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName("jump_down") && !hasSpawnedPortal)
+            {
+                OnJump();
+            }
         }
     }
 
@@ -58,61 +57,60 @@ public class SpawnPortal : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
     }
-    IEnumerator DelayedOnJump()
-    {
-        yield return new WaitForSeconds(0.1f);
-        OnJump();
-    }
     void OnJump()
     {
-        if (!hasSpawnedPortal && portalPrefab != null)
+        if (!hasSpawnedPortal && !hasJumped && portalPrefab != null)
         {
-            Vector3 spawnPosition = new Vector3(transform.position.x-0.03f, arSurfaceY - offsetY, transform.position.z - 0.03f);
+            hasJumped = true;
+            Vector3 spawnPosition = new Vector3(character.transform.position.x-0.03f, arSurfaceY, character.transform.position.z - 0.03f);
             spawnedPortal = Instantiate(portalPrefab, spawnPosition, Quaternion.identity);
-            spawnedPortal.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
-            hasSpawnedPortal = true;
+            spawnedPortal.transform.localScale = new Vector3(0.000f, 0.000f, 0.000f);
             StartCoroutine(PopUpPortal());
         }
     }
 
     IEnumerator PopUpPortal()
     {
-        while (spawnedPortal.transform.localScale.x < 0.06f)
+        while (spawnedPortal.transform.localScale.magnitude < Mathf.Sqrt(3 * 0.06f * 0.06f))
         {
-            float newScale = spawnedPortal.transform.localScale.x + (collapseSpeed * Time.deltaTime);
-            spawnedPortal.transform.localScale = new Vector3(newScale, newScale, newScale);
+            Debug.Log("Portal Size: " + spawnedPortal.transform.localScale);
+            float newScaleValue = spawnedPortal.transform.localScale.x + (collapseSpeed * Time.deltaTime);
+            spawnedPortal.transform.localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
             yield return null;
         }
-        yield return new WaitForSeconds(0.1f);
+        Debug.Log("Portal Fully Opened: " + spawnedPortal.transform.localScale);
+        StartCoroutine(soundEffectManager.PlayPortalSound());
+        hasSpawnedPortal = true;
+        yield return new WaitForSeconds(0.5f);
         StartCoroutine(MoveDownAndDisappear());
     }
     IEnumerator MoveDownAndDisappear()
     {
-        float initialY = transform.position.y;
-        while (transform.position.y > arSurfaceY - offsetY)
+        float initialY = character.transform.position.y;
+        while (character.transform.position.y > arSurfaceY)
         {
-            Debug.Log("CHARACTER POSITION: " + transform.position);
-            Debug.Log("PORTAL POSITION: " + spawnedPortal.transform.position);
-            transform.position += Vector3.down * disappearSpeed * Time.deltaTime;
-            float alpha = Mathf.Clamp01((transform.position.y - (arSurfaceY - offsetY)) / (initialY - (arSurfaceY - offsetY)));
+            character.transform.position += Vector3.down * disappearSpeed * Time.deltaTime;
+            float alpha = Mathf.Clamp01((character.transform.position.y - (arSurfaceY - offsetY)) / (initialY - (arSurfaceY - offsetY)));
             SetCharacterAlpha(alpha);
             yield return null;
         }
         SetCharacterAlpha(0.0f);
-        //gameObject.SetActive(false);
         DisableVisibility();
+        yield return new WaitForSeconds(1.0f);
         StartCoroutine(CollapsePortal());
     }
 
     IEnumerator CollapsePortal()
     {
+        yield return new WaitForSeconds(0.5f);
         float initialScale = spawnedPortal.transform.localScale.x;
-        while (spawnedPortal.transform.localScale.x > 0.01f)
+        while (spawnedPortal.transform.localScale.x > 0.0001f)
         {
             float newScale = spawnedPortal.transform.localScale.x - (collapseSpeed * Time.deltaTime);
             spawnedPortal.transform.localScale = new Vector3(newScale, newScale, newScale);
             yield return null;
         }
+        yield return new WaitForSeconds(0.5f);
         spawnedPortal.SetActive(false);
         uiManager.ShowEnd();
     }
